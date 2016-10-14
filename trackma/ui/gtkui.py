@@ -1067,9 +1067,26 @@ class Trackma_gtk():
         show = self.engine.get_show_info(self.selected_show)
         try:
             filename = self.engine.get_episode_path(show, 1)
-            with open(os.devnull, 'wb') as DEVNULL:
-                subprocess.Popen(["/usr/bin/xdg-open",
-                    os.path.dirname(filename)], stdout=DEVNULL, stderr=DEVNULL)
+            if sys.platform.startswith('darwin'):
+                # MacOS
+                with open(os.devnull, 'wb') as DEVNULL:
+                    subprocess.Popen(["open",
+                        os.path.dirname(filename)], stdout=DEVNULL, stderr=DEVNULL)
+            elif sys.platform.startswith('linux'):
+                # Linux
+                with open(os.devnull, 'wb') as DEVNULL:
+                    subprocess.Popen(["xdg-open",
+                        os.path.dirname(filename)], stdout=DEVNULL, stderr=DEVNULL)
+            elif sys.platform.startswith('win32'):
+                # Windows
+                with open(os.devnull, 'wb') as DEVNULL:
+                    subprocess.Popen(["explorer",
+                        os.path.dirname(filename)], stdout=DEVNULL, stderr=DEVNULL)
+            else:
+                # FreeBSD, Solaris, Hurd catch-all, hope they have freedesktop
+                with open(os.devnull, 'wb') as DEVNULL:
+                    subprocess.Popen(["xdg-open",
+                        os.path.dirname(filename)], stdout=DEVNULL, stderr=DEVNULL)
         except OSError:
             # xdg-open failed.
             raise utils.EngineError("Could not open folder.")
