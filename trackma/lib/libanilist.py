@@ -20,6 +20,10 @@ import urllib.request
 import socket
 import time
 import datetime
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma.lib.lib import lib
 from trackma import utils
@@ -98,7 +102,7 @@ class libanilist(lib):
         self.userid = userconfig['userid']
 
         if len(self.pin) != 40:
-            raise utils.APIFatal("Invalid PIN.")
+            raise utils.APIFatal(_("Invalid PIN."))
 
         if self.mediatype == 'manga':
             self.total_str = "total_chapters"
@@ -147,14 +151,17 @@ class libanilist(lib):
             return json.loads(response.read().decode('utf-8'))
         except urllib.request.HTTPError as e:
             if e.code == 400:
-                raise utils.APIError("Invalid PIN. It is either probably expired or meant for another application.")
+                raise utils.APIError(_("Invalid PIN.") +
+                    _("It is either probably expired"
+                      "or meant for another application."))
             else:
-                raise utils.APIError("Connection error: %s" % e)
+                raise utils.APIError(_("Connection error: {error}")
+                    .format(error=e))
         except socket.timeout:
-            raise utils.APIError("Connection timed out.")
+            raise utils.APIError(_("Connection timed out."))
 
     def _request_access_token(self):
-        self.msg.info(self.name, 'Requesting access token...')
+        self.msg.info(self.name, _("Requesting access token..."))
         param = {
             'grant_type': 'authorization_pin',
             'client_id':  self.client_id,
@@ -173,7 +180,7 @@ class libanilist(lib):
         self._emit_signal('userconfig_changed')
 
     def _refresh_access_token(self):
-        self.msg.info(self.name, 'Refreshing access token...')
+        self.msg.info(self.name, _("Refreshing access token..."))
         param = {
             'grant_type': 'refresh_token',
             'client_id': self.client_id,
@@ -191,7 +198,7 @@ class libanilist(lib):
         self._emit_signal('userconfig_changed')
 
     def _refresh_user_info(self):
-        self.msg.info(self.name, 'Refreshing user details...')
+        self.msg.info(self.name, _("Refreshing user details..."))
         param = {'access_token': self._get_userconfig('access_token')}
 
         data = self._request("GET", "user", get=param)
@@ -218,7 +225,7 @@ class libanilist(lib):
 
     def fetch_list(self):
         self.check_credentials()
-        self.msg.info(self.name, 'Downloading list...')
+        self.msg.info(self.name, _("Downloading list..."))
 
         param = {'access_token': self._get_userconfig('access_token')}
         data = self._request("GET", "user/{0}/{1}list".format(self.userid, self.mediatype), get=param)
@@ -280,17 +287,20 @@ class libanilist(lib):
 
     def add_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Adding item %s..." % item['title'])
+        self.msg.info(self.name, _("Adding item {title}...")
+            .format(title=item['title']))
         self._update_entry(item, "POST")
 
     def update_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Updating item %s..." % item['title'])
+        self.msg.info(self.name, _("Updating item {title}...")
+                .format(title=item['title']))
         self._update_entry(item, "PUT")
 
     def delete_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Deleting item %s..." % item['title'])
+        self.msg.info(self.name, _("Deleting item {title}...")
+                .format(title=item['title']))
 
         try:
             data = self._request("DELETE", "{}list/{}".format(self.mediatype, item['id']), auth=True)
@@ -302,7 +312,8 @@ class libanilist(lib):
     def search(self, criteria):
         self.check_credentials()
 
-        self.msg.info(self.name, "Searching for {}...".format(criteria))
+        self.msg.info(self.name, _("Searching for {query}...")
+            .format(query=criteria))
         param = {'access_token': self._get_userconfig('access_token')}
         data = self._request("GET", "{0}/search/{1}".format(self.mediatype, urllib.parse.quote_plus(criteria)), get=param)
 
@@ -313,8 +324,8 @@ class libanilist(lib):
             if data['error']['messages'][0] == 'No Results.':
                 data = []
             else:
-                raise utils.APIError("Error while searching for \
-                        {0}: {1}".format(criteria, str(data)))
+                raise utils.APIError(_("Error while searching for "
+                    "{query}: {error}").format(query=criteria, error=str(data)))
 
         showlist = []
         for item in data:
@@ -345,7 +356,7 @@ class libanilist(lib):
 
         for show in itemlist:
             data = self._request("GET", "{0}/{1}".format(self.mediatype, show['id']), get=param)
-            infolist.append( self._parse_info(data) )
+            infolist.append( self._parse_info(data))
 
         self._emit_signal('show_info_changed', infolist)
         return infolist

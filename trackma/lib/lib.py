@@ -14,6 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
 from trackma import utils
 
 class lib():
@@ -68,7 +73,7 @@ class lib():
         """Initializes the API"""
         self.userconfig = userconfig
         self.msg = messenger
-        self.msg.info(self.name, 'Initializing...')
+        self.msg.info(self.name, _("Initializing..."))
 
         if not userconfig.get('mediatype'):
             userconfig['mediatype'] = self.default_mediatype
@@ -76,7 +81,8 @@ class lib():
         if userconfig['mediatype'] in self.mediatypes:
             self.mediatype = userconfig['mediatype']
         else:
-            raise utils.APIFatal('Unsupported mediatype %s.' % userconfig['mediatype'])
+            raise utils.APIFatal(_("Unsupported mediatype {mediatype}")
+                .format(mediatype=userconfig['mediatype']))
 
         self.api_info['mediatype'] = self.mediatype
         self.api_info['supported_mediatypes'] = list(self.mediatypes.keys())
@@ -86,7 +92,7 @@ class lib():
             if self.signals[signal]:
                 self.signals[signal](*args)
         except KeyError:
-            raise Exception("Call to undefined signal.")
+            raise Exception(_("Call to undefined signal."))
 
     def _get_userconfig(self, key):
         return self.userconfig.get(key)
@@ -98,7 +104,7 @@ class lib():
         try:
             self.signals[signal] = callback
         except KeyError:
-            raise utils.EngineFatal("Invalid signal.")
+            raise utils.EngineFatal(_("Invalid signal."))
 
     def check_credentials(self):
         """Checks if credentials are correct; returns True or False."""

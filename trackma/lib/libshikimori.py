@@ -19,7 +19,12 @@ import urllib.parse
 import urllib.request
 import socket
 import time
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
+from trackma import utils
 from trackma.lib.lib import lib
 from trackma import utils
 
@@ -97,7 +102,7 @@ class libshikimori(lib):
         self.userid = userconfig['userid']
 
         if not self.password:
-            raise utils.APIFatal("No password.")
+            raise utils.APIFatal(_("Empty password."))
 
         if self.mediatype == 'manga':
             self.total_str = "chapters"
@@ -148,14 +153,15 @@ class libshikimori(lib):
             if e.code == 400:
                 raise utils.APIError("400")
             else:
-                raise utils.APIError("Connection error: %s" % e)
+                raise utils.APIError(_("Connection error: {error}")
+                .format(error=e))
         except socket.timeout:
-            raise utils.APIError("Connection timed out.")
+            raise utils.APIError(_("Connection timed out."))
         except ValueError:
             pass # No JSON data
 
     def _request_access_token(self):
-        self.msg.info(self.name, 'Requesting access token...')
+        self.msg.info(self.name, _("Requesting access token..."))
         param = {
             'nickname': self.username,
             'password':  self.password,
@@ -169,7 +175,7 @@ class libshikimori(lib):
         self._emit_signal('userconfig_changed')
 
     def _refresh_user_info(self):
-        self.msg.info(self.name, 'Refreshing user details...')
+        self.msg.info(self.name, _("Refreshing user details..."))
 
         data = self._request("GET", "/api/users/whoami", auth=True)
 
@@ -192,7 +198,7 @@ class libshikimori(lib):
 
     def fetch_list(self):
         self.check_credentials()
-        self.msg.info(self.name, 'Downloading list...')
+        self.msg.info(self.name, _("Downloading list..."))
 
         data = self._request("GET", "/api/users/{}/{}_rates".format(self.userid, self.mediatype))
 
@@ -227,24 +233,28 @@ class libshikimori(lib):
 
     def add_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Adding item %s..." % item['title'])
+        self.msg.info(self.name, _("Adding item {title}...")
+            .format(title=item['title']))
         return self._update_entry(item, "POST")
 
     def update_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Updating item %s..." % item['title'])
+        self.msg.info(self.name, _("Updating item {title}...")
+                .format(title=item['title']))
         return self._update_entry(item, "PUT")
 
     def delete_show(self, item):
         self.check_credentials()
-        self.msg.info(self.name, "Deleting item %s..." % item['title'])
+        self.msg.info(self.name, _("Deleting item {title}...")
+                .format(title=item['title']))
 
         data = self._request("DELETE", "/api/user_rates/{}".format(item['my_id']), auth=True)
 
     def search(self, criteria):
         self.check_credentials()
 
-        self.msg.info(self.name, "Searching for {}...".format(criteria))
+        self.msg.info(self.name, _("Searching for {query}...")
+                .format(query=criteria))
         param = {'q': criteria}
         try:
             data = self._request("GET", "/api/{}s/search".format(self.mediatype), get=param)
@@ -281,7 +291,7 @@ class libshikimori(lib):
 
         for show in itemlist:
             data = self._request("GET", "/api/{}s/{}".format(self.mediatype, show['id']))
-            infolist.append( self._parse_info(data) )
+            infolist.append( self._parse_info(data))
 
         self._emit_signal('show_info_changed', infolist)
         return infolist

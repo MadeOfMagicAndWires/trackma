@@ -22,6 +22,11 @@ import difflib
 import pickle
 import uuid
 
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
 VERSION = '0.7.4'
 
 datadir = os.path.dirname(__file__)
@@ -69,7 +74,8 @@ def parse_config(filename, default):
         save_config(config, filename)
     except ValueError:
         # There's a syntax error in the config file
-        errorString = "Erroneous config %s requires manual fixing or deletion to proceed." % filename
+        errorString = _("Erroneous config {filename} requires "
+            "manual fixing or deletion to proceed.").format(filename=filename)
         log_error(errorString)
         raise TrackmaFatal(errorString)
 

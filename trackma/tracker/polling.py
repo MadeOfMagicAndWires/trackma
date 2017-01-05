@@ -18,6 +18,10 @@ import time
 import re
 import os
 import subprocess
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma.tracker import tracker
 
@@ -28,7 +32,8 @@ class PollingTracker(tracker.TrackerBase):
         try:
             lsof = subprocess.Popen(['lsof', '+w', '-n', '-c', ''.join(['/', players, '/']), '-Fn', watch_dir], stdout=subprocess.PIPE)
         except OSError:
-            self.msg.warn(self.name, "Couldn't execute lsof. Disabling tracker.")
+            self.msg.warn(self.name,
+                    _("Couldn't execute lsof. Disabling tracker."))
             self.disable()
             return None
 
@@ -43,7 +48,7 @@ class PollingTracker(tracker.TrackerBase):
         return None
 
     def observe(self, watch_dir, interval):
-        self.msg.info(self.name, "pyinotify not available; using polling (slow).")
+        self.msg.info(self.name, _("pyinotify not available; using polling (slow)."))
         while self.active:
             # This runs the tracker and update the playing show if necessary
             filename = self.get_playing_file(watch_dir, self.process_name)
@@ -52,4 +57,3 @@ class PollingTracker(tracker.TrackerBase):
 
             # Wait for the interval before running check again
             time.sleep(interval)
-

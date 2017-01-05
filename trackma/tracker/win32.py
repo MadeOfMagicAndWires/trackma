@@ -17,6 +17,10 @@
 import ctypes
 import time
 import re
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma.tracker import tracker
 
@@ -61,7 +65,8 @@ class Win32Tracker(tracker.TrackerBase):
         return False
 
     def observe(self, interval, watch_dir):
-        self.msg.info(self.name, "Using Win32.")
+        self.msg.info(self.name, _("Using {trackername}")
+                .format(trackername=self.name))
 
         while self.active:
             # This runs the tracker and update the playing show if necessary

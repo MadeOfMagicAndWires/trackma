@@ -1,0 +1,618 @@
+# This file is part of Trackma.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.6.2\n"
+"POT-Creation-Date: 2017-01-06 00:49+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: accounts.py:50 accounts.py:75
+msgid "Empty username."
+msgstr ""
+
+#: accounts.py:52 accounts.py:77 lib/libshikimori.py:105
+msgid "Empty password."
+msgstr ""
+
+#: accounts.py:54 accounts.py:79
+msgid "That API doesn't exist."
+msgstr ""
+
+#: data.py:65 lib/lib.py:76 tracker/tracker.py:58
+msgid "Initializing..."
+msgstr ""
+
+#: data.py:85
+msgid "Couldn't import API module: {error}"
+msgstr ""
+
+#: data.py:94
+msgid "Using {libname} {mediatype}"
+msgstr ""
+
+#: data.py:124 engine.py:229 lib/lib.py:107 tracker/tracker.py:89
+msgid "Invalid signal."
+msgstr ""
+
+#: data.py:172
+msgid "Couldn't download list! Using cache."
+msgstr ""
+
+#: data.py:198 engine.py:311
+msgid "Unloading..."
+msgstr ""
+
+#: data.py:224 lib/libhb.py:215 lib/libkitsu.py:399 lib/libvndb.py:349
+msgid "No results."
+msgstr ""
+
+#: data.py:240
+msgid "Show already in the list."
+msgstr ""
+
+#: data.py:249
+msgid "Show already in the queue."
+msgstr ""
+
+#: data.py:262
+msgid "Queued add for {title}"
+msgstr ""
+
+#: data.py:306
+msgid "Queued update for {title}"
+msgstr ""
+
+#: data.py:327
+msgid "Show not in the list."
+msgstr ""
+
+#: data.py:336
+msgid "Show delete already in the queue."
+msgstr ""
+
+#: data.py:356
+msgid "Cleared queue."
+msgstr ""
+
+#: data.py:368
+msgid "Processing queue..."
+msgstr ""
+
+#: data.py:405
+msgid "Unknown operation in queue ({queuename}), skipping..."
+msgstr ""
+
+#: data.py:417
+msgid "Can't process {title}, will leave unsynced."
+msgstr ""
+
+#: data.py:419
+msgid "Info: {error}"
+msgstr ""
+
+#: data.py:423
+msgid "Operation not implemented in API. Skipping..."
+msgstr ""
+
+#: data.py:433
+msgid "No items in queue."
+msgstr ""
+
+#: data.py:504
+msgid "Reading cache..."
+msgstr ""
+
+#: data.py:508
+msgid "Saving cache..."
+msgstr ""
+
+#: data.py:512
+msgid "Reading info DB..."
+msgstr ""
+
+#: data.py:516
+msgid "Saving info DB..."
+msgstr ""
+
+#: data.py:520
+msgid "Reading userconfig..."
+msgstr ""
+
+#: data.py:524
+msgid "Saving userconfig..."
+msgstr ""
+
+#: data.py:528
+msgid "Reading queue..."
+msgstr ""
+
+#: data.py:532
+msgid "Saving queue..."
+msgstr ""
+
+#: data.py:536
+msgid "Reading metadata..."
+msgstr ""
+
+#: data.py:541
+msgid "Saving metadata..."
+msgstr ""
+
+#: data.py:607
+msgid "Database is locked by another process. If you're sure there's no other process is using it, remove the file {filename}"
+msgstr ""
+
+#: engine.py:98
+msgid "using account {accountname}({apiname})."
+msgstr ""
+
+#: engine.py:101
+msgid "Reading config files..."
+msgstr ""
+
+#: engine.py:105 extras/plex.py:22
+msgid "Couldn't open config file."
+msgstr ""
+
+#: engine.py:113
+msgid "Importing user hooks..."
+msgstr ""
+
+#: engine.py:120
+msgid "Importing hook {hookname}..."
+msgstr ""
+
+#: engine.py:127
+msgid "Error importing hook {hookname}."
+msgstr ""
+
+#: engine.py:185
+msgid "Calling hook {hookname}:{signal}..."
+msgstr ""
+
+#: engine.py:191
+msgid "Exception on hook {hookname}:{signal}: {error}"
+msgstr ""
+
+#: engine.py:221
+msgid "Forcing exit..."
+msgstr ""
+
+#: engine.py:243
+msgid "Already loaded."
+msgstr ""
+
+#: engine.py:258
+msgid "Can't auto-scan library: {error}"
+msgstr ""
+
+#: engine.py:364 engine.py:372
+msgid "Show not found."
+msgstr ""
+
+#: engine.py:451 engine.py:530 engine.py:552 engine.py:607 engine.py:644
+#: engine.py:667
+msgid "Operation not supported by API."
+msgstr ""
+
+#: engine.py:457 engine.py:911
+msgid "Episode must be numeric."
+msgstr ""
+
+#: engine.py:463
+msgid "Episode out of limits."
+msgstr ""
+
+#: engine.py:465
+msgid "Show already at episode {episodeno}"
+msgstr ""
+
+#: engine.py:469
+msgid "Updating show {title} to episode {episodeno}..."
+msgstr ""
+
+#: engine.py:489
+msgid "Updated episode but status won't be changed until a score is set."
+msgstr ""
+
+#: engine.py:496 engine.py:595
+msgid "Updated episode but status wasn't changed: {error}"
+msgstr ""
+
+#: engine.py:512
+msgid "Updated episode but dates weren't changed: {error}"
+msgstr ""
+
+#: engine.py:537
+msgid "start_date must be a Date object."
+msgstr ""
+
+#: engine.py:542
+msgid "finish_date must be a Date object."
+msgstr ""
+
+#: engine.py:556
+msgid "Invalid score."
+msgstr ""
+
+#: engine.py:570
+msgid "Score already at {score}"
+msgstr ""
+
+#: engine.py:574
+msgid "Updating show {title} to score {score}..."
+msgstr ""
+
+#: engine.py:617
+msgid "Invalid status."
+msgstr ""
+
+#: engine.py:623
+msgid "Show already in {status}."
+msgstr ""
+
+#: engine.py:628
+msgid "Updating show {title} status to {status}..."
+msgstr ""
+
+#: engine.py:650
+msgid "Tags already {tag}"
+msgstr ""
+
+#: engine.py:653
+msgid "Updating show {title} to tags '{tags}'..."
+msgstr ""
+
+#: engine.py:680
+msgid "DEPRECATED: _search_video"
+msgstr ""
+
+#: engine.py:728
+msgid "Searching {episodeno}/{total}..."
+msgstr ""
+
+#: engine.py:738 engine.py:771
+msgid "Time: {time}"
+msgstr ""
+
+#: engine.py:748 engine.py:901
+msgid "Operation not supported by current site or mediatype."
+msgstr ""
+
+#: engine.py:751
+msgid "Media directory is not set"
+msgstr ""
+
+#: engine.py:753 engine.py:906
+msgid "The set media directory doesn't exist."
+msgstr ""
+
+#: engine.py:762
+msgid "Scanning local library..."
+msgstr ""
+
+#: engine.py:763
+msgid "Directory: {searchdir}"
+msgstr ""
+
+#: engine.py:788
+msgid "File removed from local library: {path}"
+msgstr ""
+
+#: engine.py:815
+msgid "File already in library: {path}"
+msgstr ""
+
+#: engine.py:819
+msgid "File not in library cache: {path}"
+msgstr ""
+
+#: engine.py:840
+msgid "New file added to local library: {path}"
+msgstr ""
+
+#: engine.py:864
+msgid "Show not in library."
+msgstr ""
+
+#: engine.py:866
+msgid "Episode not in library."
+msgstr ""
+
+#: engine.py:878
+msgid "Looking for random episode."
+msgstr ""
+
+#: engine.py:886
+msgid "No new episodes found to pick from."
+msgstr ""
+
+#: engine.py:904
+msgid "Media directory is not set."
+msgstr ""
+
+#: engine.py:920
+msgid "Episode beyond limits."
+msgstr ""
+
+#: engine.py:925
+msgid "Searching for {title} {episodeno}..."
+msgstr ""
+
+#: engine.py:931
+msgid "Getting {title} {episodeno} from library..."
+msgstr ""
+
+#: engine.py:937
+msgid "Found. Starting player..."
+msgstr ""
+
+#: engine.py:944
+msgid "Player not found, check your {configfile}"
+msgstr ""
+
+#: engine.py:948
+msgid "Episode file not found."
+msgstr ""
+
+#: engine.py:962
+msgid "Cleared alternate name."
+msgstr ""
+
+#: engine.py:965
+msgid "Changed alternate name to {newname}."
+msgstr ""
+
+#: lib/lib.py:84
+msgid "Unsupported mediatype {mediatype}"
+msgstr ""
+
+#: lib/lib.py:95 tracker/tracker.py:107
+msgid "Call to undefined signal."
+msgstr ""
+
+#: lib/libanilist.py:105 lib/libanilist.py:154
+msgid "Invalid PIN."
+msgstr ""
+
+#: lib/libanilist.py:155
+msgid "It is either probably expiredor meant for another application."
+msgstr ""
+
+#: lib/libanilist.py:158 lib/libhb.py:95 lib/libmal.py:133
+#: lib/libshikimori.py:156
+msgid "Connection error: {error}"
+msgstr ""
+
+#: lib/libanilist.py:161 lib/libkitsu.py:187 lib/libshikimori.py:159
+msgid "Connection timed out."
+msgstr ""
+
+#: lib/libanilist.py:164 lib/libkitsu.py:201 lib/libshikimori.py:164
+msgid "Requesting access token..."
+msgstr ""
+
+#: lib/libanilist.py:183 lib/libkitsu.py:225
+msgid "Refreshing access token..."
+msgstr ""
+
+#: lib/libanilist.py:201 lib/libkitsu.py:237 lib/libshikimori.py:178
+msgid "Refreshing user details..."
+msgstr ""
+
+#: lib/libanilist.py:228 lib/libhb.py:117 lib/libkitsu.py:269
+#: lib/libmal.py:168 lib/libshikimori.py:201 lib/libvndb.py:184
+msgid "Downloading list..."
+msgstr ""
+
+#: lib/libanilist.py:290 lib/libkitsu.py:344 lib/libmal.py:198
+#: lib/libshikimori.py:236
+msgid "Adding item {title}..."
+msgstr ""
+
+#: lib/libanilist.py:296 lib/libhb.py:165 lib/libkitsu.py:360
+#: lib/libmal.py:215 lib/libshikimori.py:242 lib/libvndb.py:282
+msgid "Updating item {title}..."
+msgstr ""
+
+#: lib/libanilist.py:302 lib/libhb.py:188 lib/libkitsu.py:372
+#: lib/libmal.py:232 lib/libshikimori.py:248 lib/libvndb.py:316
+msgid "Deleting item {title}..."
+msgstr ""
+
+#: lib/libanilist.py:315 lib/libhb.py:199 lib/libkitsu.py:380
+#: lib/libmal.py:243 lib/libshikimori.py:256 lib/libvndb.py:329
+msgid "Searching for {query}..."
+msgstr ""
+
+#: lib/libanilist.py:327 lib/libhb.py:220 lib/libkitsu.py:403
+msgid "Error while searching for {query}: {error}"
+msgstr ""
+
+#: lib/libhb.py:93 lib/libkitsu.py:175
+msgid "Incorrect credentials."
+msgstr ""
+
+#: lib/libhb.py:98 lib/libkitsu.py:185
+msgid "URL error: {error}"
+msgstr ""
+
+#: lib/libhb.py:105 lib/libmal.py:150 lib/libvndb.py:159
+msgid "Logging in..."
+msgstr ""
+
+#: lib/libhb.py:156 lib/libkitsu.py:327 lib/libmal.py:190
+msgid "Error getting list."
+msgstr ""
+
+#: lib/libhb.py:182 lib/libkitsu.py:367
+msgid "Error updating {title}: {error}"
+msgstr ""
+
+#: lib/libhb.py:195 lib/libkitsu.py:377 lib/libmal.py:238
+msgid "Error deleting: "
+msgstr ""
+
+#: lib/libkitsu.py:179
+msgid "API error: {error}"
+msgstr ""
+
+#: lib/libkitsu.py:288
+msgid "Getting page {pageno}..."
+msgstr ""
+
+#: lib/libkitsu.py:355
+msgid "Error adding: "
+msgstr ""
+
+#: lib/libmal.py:124
+msgid "Unauthorized. Please check if your username and passwordare correct."
+msgstr ""
+
+#: lib/libmal.py:126
+msgid "Please note that you might also be getting this errorif you have non-alphanumeric characters in your passworddue to an upstream MAL bug (#138)."
+msgstr ""
+
+#: lib/libmal.py:130
+msgid "HTTP error {errorno}: {errormsg}"
+msgstr ""
+
+#: lib/libmal.py:179 lib/libmal.py:183
+msgid "Parsing {mediatype} list..."
+msgstr ""
+
+#: lib/libmal.py:187
+msgid "Attempted to parse unsupported media type."
+msgstr ""
+
+#: lib/libmal.py:192
+msgid "Error reading list: {error}"
+msgstr ""
+
+#: lib/libmal.py:209
+msgid "Error adding {title}: {error}"
+msgstr ""
+
+#: lib/libmal.py:226
+msgid "Error updating: {title}"
+msgstr ""
+
+#: lib/libmal.py:257
+msgid "Parser error: {error!r}"
+msgstr ""
+
+#: lib/libmal.py:259
+msgid "IO error: {error!r}"
+msgstr ""
+
+#: lib/libmal.py:329
+msgid "There was a problem getting the show details."
+msgstr ""
+
+#: lib/libvndb.py:105
+msgid "Connection error."
+msgstr ""
+
+#: lib/libvndb.py:107
+msgid "Insecure connection."
+msgstr ""
+
+#: lib/libvndb.py:156
+msgid "Connecting..."
+msgstr ""
+
+#: lib/libvndb.py:193 lib/libvndb.py:221 lib/libvndb.py:256 lib/libvndb.py:293
+#: lib/libvndb.py:310 lib/libvndb.py:322 lib/libvndb.py:339
+msgid "Invalid response: {name}"
+msgstr ""
+
+#: lib/libvndb.py:212
+msgid "Downloading votes..."
+msgstr ""
+
+#: lib/libvndb.py:246
+msgid "Requesting details..."
+msgstr ""
+
+#: lib/libvndb.py:354
+msgid "Disconnecting..."
+msgstr ""
+
+#: tracker/inotify.py:87 tracker/plex.py:34 tracker/pyinotify.py:84
+#: tracker/win32.py:63
+msgid "Using {trackername}"
+msgstr ""
+
+#: tracker/inotify.py:126 tracker/pyinotify.py:149
+msgid "Tracker has stopped."
+msgstr ""
+
+#: tracker/plex.py:49
+msgid "Plex Media Server is not running."
+msgstr ""
+
+#: tracker/polling.py:37
+msgid "Couldn't execute lsof. Disabling tracker."
+msgstr ""
+
+#: tracker/polling.py:52
+msgid "pyinotify not available; using polling (slow)."
+msgstr ""
+
+#: tracker/tracker.py:69
+msgid "Enabling tracker..."
+msgstr ""
+
+#: tracker/tracker.py:124
+msgid "Waiting for the player to close."
+msgstr ""
+
+#: tracker/tracker.py:155
+msgid "Player is not playing the next episode of {title}. Ignoring."
+msgstr ""
+
+#: tracker/tracker.py:168
+msgid "Will update {title} {episodeno} in {sec} seconds"
+msgstr ""
+
+#: tracker/tracker.py:172
+msgid "Will add {title} {episodeno} in {sec} seconds"
+msgstr ""
+
+#: tracker/tracker.py:183
+msgid "Player was closed before update."
+msgstr ""
+
+#: tracker/tracker.py:186
+msgid "Found video but the file name format couldn't be recognized."
+msgstr ""
+
+#: tracker/tracker.py:190
+msgid "Found player but show not in list."
+msgstr ""
+
+#: utils.py:75
+msgid "Erroneous config {filename} requires manual fixing or deletion to proceed."
+msgstr ""
+

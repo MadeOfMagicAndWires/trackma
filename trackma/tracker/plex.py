@@ -21,6 +21,11 @@ import urllib.request
 import xml.dom.minidom as xdmd
 
 import trackma.utils as utils
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
 from trackma.tracker import tracker
 
 NOT_RUNNING = 0
@@ -29,6 +34,7 @@ IDLE = 2
 
 class PlexTracker(tracker.TrackerBase):
     name = 'Tracker (Plex)'
+    _trackername = 'Plex'
 
     def __init__(self, messenger, tracker_list, process_name, watch_dir, interval, update_wait, update_close, not_found_prompt):
         self.config = utils.parse_config(utils.get_root_filename('config.json'), utils.config_defaults)
@@ -73,51 +79,53 @@ class PlexTracker(tracker.TrackerBase):
         return round((duration*0.80)/60000)*60
 
     def observe(self, watch_dir, interval):
-        self.msg.info(self.name, "Using Plex.")
+        self.msg.info(self.name, _("Using {trackername}")
+                .format(trackername=self._trackername))
 
         while self.active:
             self.status_log.append(self.get_plex_status())
-            
+
             if self.status_log[-1] == ACTIVE or self.status_log[-1] == IDLE:
                 if self.status_log[-1] == IDLE and self.status_log[-2] == NOT_RUNNING:
-                    self.msg.info(self.name, "Reconnected to Plex.")
-                
+                    self.msg.info(self.name, _("Reconnected to {trackername}.")
+                            .format(trackername=self._trackername)
+
                 if self.config['plex_obey_update_wait_s']:
                     self.wait_s = self.update_wait
                 else:
                     self.wait_s = self.timer_from_file()
-                    
+
                 filename = self.playing_file()
                 (state, show_tuple) = self._get_playing_show(filename)
                 self.update_show_if_needed(state, show_tuple)
             elif self.status_log[-1] == NOT_RUNNING and self.status_log[-2] == NOT_RUNNING:
-                self.msg.warn(self.name, "Plex Media Server is not running.")
-                
+                self.msg.warn(self.name, _("Plex Media Server is not running."))
+
             del self.status_log[0]
 
             # Wait for the interval before running check again
             time.sleep(interval)
-            
+
     def _get_plex_token(self):
         username = self.config['plex_user']
         password = self.config['plex_passwd']
         uuid = self.config['plex_uuid']
-        
+
         if not (username and password):
             return ''
-        
+
         body = bytes('user[login]=%s&user[password]=%s' % (username, password), "utf-8")
         headers={'X-Plex-Client-Identifier': uuid,
                 'X-Plex-Product': "Trackma",
                 'X-Plex-Version': utils.VERSION}
-        
+
         req = urllib.request.Request('https://plex.tv/users/sign_in.xml', body, headers=headers)
         response = urllib.request.urlopen(req)
         data = response.read().decode("utf-8")
-        
+
         tdoc = xdmd.parseString(data)
         token = tdoc.getElementsByTagName("user")[0].getAttribute("authToken")
-        
+
         return "?X-Plex-Token="+token
 
     def _get_xml_info(self, url, tag, attr):
@@ -125,12 +133,12 @@ class PlexTracker(tracker.TrackerBase):
             uop = urllib.request.urlopen(url)
         except urllib.request.URLError:
             uop = urllib.request.urlopen(url+self.token)
-            
+
         doc = xdmd.parse(uop)
         res = doc.getElementsByTagName(tag)[0].getAttribute(attr)
 
         return res
-        
+
     def _get_sessions_info(self, tag, attr):
         # Get the required info from the /status/sessions url
         session_url = "http://"+self.host_port+"/status/sessions"

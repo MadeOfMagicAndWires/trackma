@@ -1,4 +1,9 @@
 import pickle
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
 from trackma import utils
 
 class AccountManager():
@@ -42,11 +47,11 @@ class AccountManager():
         available_libs = utils.available_libs.keys()
 
         if not username:
-            raise utils.AccountError('Empty username.')
+            raise utils.AccountError(_("Empty username."))
         if not password:
-            raise utils.AccountError('Empty password.')
+            raise utils.AccountError(_("Empty password."))
         if api not in available_libs:
-            raise utils.AccountError('That API doesn\'t exist.')
+            raise utils.AccountError(_("That API doesn't exist."))
 
         account = {'username': username,
                    'password': password,
@@ -67,11 +72,11 @@ class AccountManager():
         available_libs = utils.available_libs.keys()
 
         if not username:
-            raise utils.AccountError('Empty username.')
+            raise utils.AccountError(_("Empty username."))
         if not password:
-            raise utils.AccountError('Empty password.')
+            raise utils.AccountError(_("Empty password."))
         if api not in available_libs:
-            raise utils.AccountError('That API doesn\'t exist.')
+            raise utils.AccountError(_("That API doesn't exist."))
 
         account = {'username': username,
                    'password': password,

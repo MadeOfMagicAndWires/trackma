@@ -22,7 +22,11 @@ import urllib.request
 import json
 import gzip
 import socket
+import gettext
 
+t = gettext.translation('trackma',
+    localedir='/home/joost/Programming/git/trackma/trackma/locale')
+_ = t.gettext
 #import http.client
 #http.client.HTTPConnection.debuglevel = 1
 
@@ -172,17 +176,18 @@ class libkitsu(lib):
                 return response.read().decode('utf-8')
         except urllib.request.HTTPError as e:
             if e.code == 401:
-                raise utils.APIError("Incorrect credentials.")
+                raise utils.APIError(_("Incorrect credentials."))
             else:
                 api_error = self._parse_errors(e)
                 if api_error:
-                    raise utils.APIError("API error: %s" % api_error)
+                    raise utils.APIError(_("API error: {error}")
+                            .format(error=api_error))
                 else:
                     raise utils.APIError("Connection error: %s" % e)
         except urllib.request.URLError as e:
-            raise utils.APIError("URL error: %s" % e)
+            raise utils.APIError(_("URL error: {error}").format(error=e))
         except socket.timeout:
-            raise utils.APIError("Operation timed out.")
+            raise utils.APIError(_("Operation timed out."))
 
     def _parse_errors(self, e):
         try:
@@ -202,12 +207,12 @@ class libkitsu(lib):
         }
 
         if refresh:
-            self.msg.info(self.name, 'Refreshing access token...')
+            self.msg.info(self.name, _("Refreshing access token..."))
 
             params['grant_type']    = 'refresh_token'
             params['refresh_token'] = self._get_userconfig('refresh_token')
         else:
-            self.msg.info(self.name, 'Requesting access token...')
+            self.msg.info(self.name, _("Requesting access token..."))
 
             params['grant_type'] = 'password'
             params['username']   = self.username
@@ -228,7 +233,7 @@ class libkitsu(lib):
         self._emit_signal('userconfig_changed')
 
     def _refresh_user_info(self):
-        self.msg.info(self.name, 'Refreshing user details...')
+        self.msg.info(self.name, _("Refreshing user details..."))
         params = {
                 "filter[self]": 'true',
         }
@@ -260,7 +265,7 @@ class libkitsu(lib):
         """Queries the full list from the remote server.
         Returns the list if successful, False otherwise."""
         self.check_credentials()
-        self.msg.info(self.name, 'Downloading list...')
+        self.msg.info(self.name, _( "Downloading list...") )
 
         try:
             showlist = dict()
@@ -281,7 +286,8 @@ class libkitsu(lib):
             i = 1
 
             while url:
-                self.msg.info(self.name, 'Getting page {}...'.format(i))
+                self.msg.info(self.name, _("Getting page {pageno}...")
+                    .format(pageno=i))
 
                 data = self._request('GET', url)
                 data_json = json.loads(data)
@@ -321,7 +327,7 @@ class libkitsu(lib):
 
             return showlist
         except urllib.request.HTTPError as e:
-            raise utils.APIError("Error getting list.")
+            raise utils.APIError(_("Error getting list."))
 
     def merge(self, show, info):
         show['title']   = info['title']
@@ -344,7 +350,8 @@ class libkitsu(lib):
     def add_show(self, item):
         """Adds a new show in the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Adding show %s..." % item['title'])
+        self.msg.info(self.name, _( "Adding item {title}..." )
+                .format(title=item['title']))
 
         data = self._build_data(item)
 
@@ -354,32 +361,32 @@ class libkitsu(lib):
             data_json = json.loads(data)
             return int(data_json['data']['id'])
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error adding: ' + str(e.code))
+            raise utils.APIError(_( "Error adding: " ) + str(e.code))
 
     def update_show(self, item):
         """Sends a show update to the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Updating show %s..." % item['title'])
+        self.msg.info(self.name, _( "Updating item {title}..." ) % item['title'])
 
         data = self._build_data(item)
 
         try:
             self._request('PATCH', self.prefix + "/library-entries/%s" % item['my_id'], body=data, auth=True)
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error updating: ' + str(e.code))
+            raise utils.APIError(_( "Error updating {title}: {error}" ) + str(e.code))
 
     def delete_show(self, item):
         """Sends a show delete to the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Deleting show %s..." % item['title'])
+        self.msg.info(self.name, _("Deleting item {title}...") % item['title'])
 
         try:
             self._request('DELETE', self.prefix + "/library-entries/%s" % item['my_id'], auth=True)
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error deleting: ' + str(e.code))
+            raise utils.APIError(_( "Error deleting: " ) + str(e.code))
 
     def search(self, query):
-        self.msg.info(self.name, "Searching for %s..." % query)
+        self.msg.info(self.name, _( "Searching for {query}..." ) % query)
 
         values = {
                   "filter[text]": query,
@@ -398,11 +405,11 @@ class libkitsu(lib):
             self._emit_signal('show_info_changed', infolist)
 
             if not infolist:
-                raise utils.APIError('No results.')
+                raise utils.APIError(_( "No results.") )
 
             return infolist
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error searching: ' + str(e.code))
+            raise utils.APIError(_( "Error while searching for {query}: {error}" ) + str(e.code))
 
     def _build_data(self, item):
         values = {'data': {

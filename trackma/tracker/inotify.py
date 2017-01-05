@@ -14,6 +14,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 import inotify.adapters
 import inotify.constants
@@ -26,7 +30,8 @@ class inotifyTracker(inotifyBase.inotifyBase):
 
     def observe(self, watch_dir, interval):
         # Note that this lib uses bytestrings for filenames and paths.
-        self.msg.info(self.name, 'Using inotify.')
+        self.msg.info(self.name, _("Using {trackername}")
+                .format(trackername=self.name))
 
         watch_dir = watch_dir.encode('utf-8')
         mask = (inotify.constants.IN_OPEN
@@ -64,6 +69,6 @@ class inotifyTracker(inotifyBase.inotifyBase):
                     # This will count down like inotifyx impl. did
                     self.update_show_if_needed(self.last_state, self.last_show_tuple)
         finally:
-            self.msg.info(self.name, 'Tracker has stopped.')
+            self.msg.info(self.name, _("Tracker has stopped."))
             # inotify resource is cleaned-up automatically
 

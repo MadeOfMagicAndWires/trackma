@@ -24,6 +24,10 @@ import datetime
 import random
 import shlex
 from decimal import Decimal
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma import messenger
 from trackma import data
@@ -89,13 +93,16 @@ class Engine:
         userfolder = "%s.%s" % (account['username'], account['api'])
         utils.make_dir(userfolder)
 
-        self.msg.info(self.name, 'Trackma v{0} - using account {1}({2}).'.format(
-            utils.VERSION, account['username'], account['api']))
-        self.msg.info(self.name, 'Reading config files...')
+        self.msg.info(self.name,
+                "Trackma v{versionno} - ".format(versionno=utils.VERSION) +
+            _('using account {accountname}({apiname}).')
+                .format(accountname=account['username'],
+                    apiname=account['api']))
+        self.msg.info(self.name, _("Reading config files..."))
         try:
             self.config = utils.parse_config(self.configfile, utils.config_defaults)
         except IOError:
-            raise utils.EngineFatal("Couldn't open config file.")
+            raise utils.EngineFatal(_("Couldn't open config file."))
 
         # Load hook files
         hooks_dir = utils.get_root_filename('hooks')
@@ -103,20 +110,22 @@ class Engine:
             import sys
             import pkgutil
 
-            self.msg.info(self.name, "Importing user hooks...")
+            self.msg.info(self.name, _("Importing user hooks..."))
             for loader, name, ispkg in pkgutil.iter_modules([hooks_dir]):
                 # List all the hook files in the hooks folder, import them
                 # and call the init() function if they have them
                 # We build the list "hooks available" with the loaded modules
                 # for later calls.
                 try:
-                    self.msg.debug(self.name, "Importing hook {}...".format(name))
+                    self.msg.debug(self.name, _("Importing hook {hookname}...")
+                            .format(hookname=name))
                     module = loader.find_module(name).load_module(name)
                     if hasattr(module, 'init'):
                         module.init(self)
                     self.hooks_available.append(module)
                 except ImportError:
-                    self.msg.warn(self.name, "Error importing hook {}.".format(name))
+                    self.msg.warn(self.name, _("Error importing hook "
+                        "{hookname}.").format(name))
 
     def _init_data_handler(self, mediatype=None):
         # Create data handler
@@ -176,11 +185,17 @@ class Engine:
         for module in self.hooks_available:
             method = getattr(module, signal, None)
             if method is not None:
-                self.msg.info(self.name, "Calling hook {}:{}...".format(module.__name__, signal))
+                self.msg.info(self.name, _("Calling hook "
+                    "{hookname}:{signal}...")
+                    .format(hookname=module.__name__, signal=signal))
                 try:
                     method(self, *args)
                 except Exception as err:
-                    self.msg.warn(self.name, "Exception on hook {}:{}: {}".format(module.__name__, signal, err))
+                    self.msg.warn(self.name, _("Exception on hook "
+                        "{hookname}:{signal}: {error}")
+                         .format(hookname=module.__name__,
+                             signal=signal,
+                             error=err))
 
     def _get_tracker_list(self, filter_num=None):
         tracker_list = []
@@ -214,7 +229,7 @@ class Engine:
     def _cleanup(self):
         # If the engine wasn't closed for whatever reason, do it
         if self.loaded:
-            self.msg.info(self.name, "Forcing exit...")
+            self.msg.info(self.name, _("Forcing exit..."))
             self.data_handler.unload(True)
             self.loaded = False
 
@@ -222,7 +237,7 @@ class Engine:
         try:
             self.signals[signal] = callback
         except KeyError:
-            raise utils.EngineFatal("Invalid signal.")
+            raise utils.EngineFatal(_("Invalid signal."))
 
     def set_message_handler(self, message_handler):
         """Changes the message handler function on the fly."""
@@ -236,7 +251,7 @@ class Engine:
         as it initializes the data handler.
         """
         if self.loaded:
-            raise utils.TrackmaError("Already loaded.")
+            raise utils.TrackmaError(_("Already loaded."))
 
         # Start the data handler
         try:
@@ -251,7 +266,8 @@ class Engine:
             try:
                 self.scan_library()
             except utils.TrackmaError as e:
-                self.msg.warn(self.name, "Can't auto-scan library: {}".format(e))
+                self.msg.warn(self.name, _("Can't auto-scan library: {error}")
+                        .format(error=e))
 
         # Start tracker
         if self.mediainfo.get('can_play') and self.config['tracker_enabled']:
@@ -303,7 +319,7 @@ class Engine:
 
         """
         if self.loaded:
-            self.msg.info(self.name, "Unloading...")
+            self.msg.info(self.name, _("Unloading..."))
             self.data_handler.unload()
 
             self.loaded = False
@@ -356,7 +372,7 @@ class Engine:
         try:
             return showdict[showid]
         except KeyError:
-            raise utils.EngineError("Show not found.")
+            raise utils.EngineError(_("Show not found."))
 
     def get_show_info_title(self, pattern):
         showdict = self.data_handler.get()
@@ -364,7 +380,7 @@ class Engine:
         for k, show in showdict.items():
             if show['title'] == pattern:
                 return show
-        raise utils.EngineError("Show not found.")
+        raise utils.EngineError(_("Show not found."))
 
     def get_show_details(self, show):
         """
@@ -443,24 +459,26 @@ class Engine:
         """
         # Check if operation is supported by the API
         if not self.mediainfo.get('can_update'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_("Operation not supported by API."))
 
         # Check for the episode number
         try:
             newep = int(newep)
         except ValueError:
-            raise utils.EngineError('Episode must be numeric.')
+            raise utils.EngineError(_("Episode must be numeric."))
 
         # Get the show info
         show = self.get_show_info(showid)
         # More checks
         if (show['total'] and newep > show['total']) or newep < 0:
-            raise utils.EngineError('Episode out of limits.')
+            raise utils.EngineError(_("Episode out of limits."))
         if show['my_progress'] == newep:
-            raise utils.EngineError("Show already at episode %d" % newep)
+            raise utils.EngineError(_("Show already at episode {episodeno}")
+                .format(episodeno=newep))
 
         # Change episode
-        self.msg.info(self.name, "Updating show %s to episode %d..." % (show['title'], newep))
+        self.msg.info(self.name, _("Updating show {title} to episode {episodeno}...")
+                .format(name=show['title'], episodeno=newep))
         self.data_handler.queue_update(show, 'my_progress', newep)
 
         # Emit signal
@@ -478,13 +496,16 @@ class Engine:
                         # Change to finished status
                         self.set_status(show['id'], self.mediainfo['status_finish'])
                     else:
-                        self.msg.warn(self.name, "Updated episode but status won't be changed until a score is set.")
+                        self.msg.warn(self.name,
+                            _("Updated episode but status won't be changed "
+                              "until a score is set."))
                 elif newep == 1 and self.mediainfo.get('status_start'):
                     # Change to watching status
                     self.set_status(show['id'], self.mediainfo['status_start'])
             except utils.EngineError as e:
                 # Only warn about engine errors since status change here is not crtical
-                self.msg.warn(self.name, 'Updated episode but status wasn\'t changed: %s' % e)
+                self.msg.warn(self.name, _("Updated episode but status wasn't "
+                    "changed: {error}").format(error=e))
 
         # Change dates if required
         if self.config['auto_date_change'] and self.mediainfo.get('can_date'):
@@ -499,7 +520,8 @@ class Engine:
                 self.set_dates(show['id'], start_date, finish_date)
             except utils.EngineError as e:
                 # Only warn about engine errors since date change here is not crtical
-                self.msg.warn(self.name, 'Updated episode but dates weren\'t changed: %s' % e)
+                self.msg.warn(self.name, _("Updated episode but dates weren't "
+                    "changed: {error}").format(error=e))
 
         # Clear neweps flag
         if self.data_handler.get_show_attr(show, 'neweps'):
@@ -516,19 +538,19 @@ class Engine:
         If any of the two are None, it won't be changed.
         """
         if not self.mediainfo.get('can_date'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_("Operation not supported by API."))
 
         show = self.get_show_info(showid)
 
         # Change the start date if required
         if start_date:
             if not isinstance(start_date, datetime.date):
-                raise utils.EngineError('start_date must be a Date object.')
+                raise utils.EngineError(_("start_date must be a Date object."))
             self.data_handler.queue_update(show, 'my_start_date', start_date)
 
         if finish_date:
             if not isinstance(finish_date, datetime.date):
-                raise utils.EngineError('finish_date must be a Date object.')
+                raise utils.EngineError(_("finish_date must be a Date object."))
             self.data_handler.queue_update(show, 'my_finish_date', finish_date)
 
     def set_score(self, showid, newscore):
@@ -538,11 +560,11 @@ class Engine:
         """
         # Check if operation is supported by the API
         if not self.mediainfo.get('can_score'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_("Operation not supported by API."))
 
         # Check for the correctness of the score
         if (Decimal(str(newscore)) % Decimal(str(self.mediainfo['score_step']))) != 0:
-            raise utils.EngineError('Invalid score.')
+            raise utils.EngineError(_('Invalid score.'))
 
         # Convert to proper type
         if isinstance( self.mediainfo['score_step'], int ):
@@ -556,10 +578,12 @@ class Engine:
         if newscore > self.mediainfo['score_max']:
             raise utils.EngineError('Score out of limits.')
         if show['my_score'] == newscore:
-            raise utils.EngineError("Score already at %s" % newscore)
+            raise utils.EngineError(_("Score already at {score}")
+                .format(score=newscore))
 
         # Change score
-        self.msg.info(self.name, "Updating show %s to score %s..." % (show['title'], newscore))
+        self.msg.info(self.name, _("Updating show {title} to score {score}...")
+            .format(name=show['title'], score=newscore))
         self.data_handler.queue_update(show, 'my_score', newscore)
 
         # Emit signal
@@ -579,7 +603,8 @@ class Engine:
                 self.set_status(show['id'], self.mediainfo['status_finish'])
             except utils.EngineError as e:
                 # Only warn about engine errors since status change here is not crtical
-                self.msg.warn(self.name, 'Updated episode but status wasn\'t changed: %s' % e)
+                self.msg.warn(self.name, _("Updated episode but status wasn't "
+                    "changed: {error}").format(error=e))
 
         return show
 
@@ -590,7 +615,7 @@ class Engine:
         """
         # Check if operation is supported by the API
         if not self.mediainfo.get('can_status'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_("Operation not supported by API."))
 
         try:
             newstatus = int(newstatus)
@@ -600,17 +625,19 @@ class Engine:
         # Check if the status is valid
         _statuses = self.mediainfo['statuses_dict']
         if newstatus not in _statuses:
-            raise utils.EngineError('Invalid status.')
+            raise utils.EngineError(_("Invalid status."))
 
         # Get the show and update it
         show = self.get_show_info(showid)
         # More checks
         if show['my_status'] == newstatus:
-            raise utils.EngineError("Show already in %s." % _statuses[newstatus])
+            raise utils.EngineError(_("Show already in {status}.")
+                .format(status=_statuses[newstatus]))
 
         # Change status
         old_status = show['my_status']
-        self.msg.info(self.name, "Updating show %s status to %s..." % (show['title'], _statuses[newstatus]))
+        self.msg.info(self.name, _("Updating show {title} status to {status}...")
+                .format(name=show['title'], status=_statuses[newstatus]))
         self.data_handler.queue_update(show, 'my_status', newstatus)
 
         # Emit signal
@@ -625,16 +652,17 @@ class Engine:
         """
         # Check if operation is supported by the API
         if 'can_tag' not in self.mediainfo or not self.mediainfo.get('can_tag'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_('Operation not supported by API.'))
 
         # Get the show and update it
         show = self.get_show_info(showid)
         # More checks
         if show['my_tags'] == newtags:
-            raise utils.EngineError("Tags already %s" % newtags)
+            raise utils.EngineError(_("Tags already {tag}").format(tag=newtags))
 
         # Change score
-        self.msg.info(self.name, "Updating show %s to tags '%s'..." % (show['title'], newtags))
+        self.msg.info(self.name, _("Updating show {title} to tags '{tags}'...")
+            .format(name=show['title'], tags=newtags))
         self.data_handler.queue_update(show, 'my_tags', newtags)
 
         # Emit signal
@@ -647,7 +675,7 @@ class Engine:
         Deletes **show** completely from the list and queues the list update for the next sync.
         """
         if not self.mediainfo.get('can_delete'):
-            raise utils.EngineError('Operation not supported by API.')
+            raise utils.EngineError(_('Operation not supported by API.'))
 
         # Add in data handler
         self.data_handler.queue_delete(show)
@@ -660,7 +688,7 @@ class Engine:
 
     def _search_video(self, titles, episode):
         # DEPRECATED !!!
-        self.msg.debug(self.name, "DEPRECATED: _search_video")
+        self.msg.debug(self.name, _("DEPRECATED: _search_video"))
 
         best_candidate = (None, 0, None)
 
@@ -711,7 +739,8 @@ class Engine:
         t = time.time()
 
         for i, show in enumerate(showlist):
-            self.msg.info(self.name, "Searching %d/%d..." % (i+1, total))
+            self.msg.info(self.name, _("Searching {episodeno}/{total}...")
+                .format(episodeno=i+1, total=total))
 
             titles = self.data_handler.get_show_titles(show)
 
@@ -720,7 +749,8 @@ class Engine:
                 self.data_handler.set_show_attr(show, 'neweps', True)
                 results.append(show)
 
-        self.msg.info(self.name, "Time: %s" % (time.time() - t))
+        self.msg.info(self.name, _("Time: {time}")
+                .format(time=(time.time() - t)))
         return results
 
     def library(self):
@@ -729,11 +759,12 @@ class Engine:
     def scan_library(self, my_status=None, rescan=False):
         # Check if operation is supported by the API
         if not self.mediainfo.get('can_play'):
-            raise utils.EngineError('Operation not supported by current site or mediatype.')
+            raise utils.EngineError(_("Operation not supported by current site "
+            "or mediatype."))
         if not self.config['searchdir']:
-            raise utils.EngineError('Media directory is not set.')
+            raise utils.EngineError(_("Media directory is not set"))
         if not utils.dir_exists(self.config['searchdir']):
-            raise utils.EngineError('The set media directory doesn\'t exist.')
+            raise utils.EngineError(_("The set media directory doesn't exist."))
 
         t = time.time()
         library = {}
@@ -745,8 +776,9 @@ class Engine:
             else:
                 my_status = self.mediainfo['status_start']
 
-        self.msg.info(self.name, "Scanning local library...")
-        self.msg.debug(self.name, "Directory: %s" % self.config['searchdir'])
+        self.msg.info(self.name, _("Scanning local library..."))
+        self.msg.debug(self.name, _("Directory: {searchdir}")
+            .format(searchdir=self.config['searchdir']))
         tracker_list = self._get_tracker_list(my_status)
 
 
@@ -754,7 +786,8 @@ class Engine:
         for fullpath, filename in utils.regex_find_videos('mkv|mp4|avi', self.config['searchdir']):
             (library, library_cache) = self._add_show_to_library(library, library_cache, rescan, fullpath, filename, tracker_list)
 
-        self.msg.debug(self.name, "Time: %s" % (time.time() - t))
+        self.msg.debug(self.name, _("Time: {time}").format(time=(time.time() -
+            t)))
         self.data_handler.library_save(library)
         self.data_handler.library_cache_save(library_cache)
         return library
@@ -770,7 +803,8 @@ class Engine:
             if show_id and show_id in library \
                     and show_ep and show_ep in library[show_id].keys():
                 if library[show_id][show_ep] == fullpath:
-                    self.msg.debug(self.name, "File removed from local library: %s" % fullpath)
+                    self.msg.debug(self.name, _("File removed from local "
+                        "library: {path}").format(fullpath))
                     library_cache.pop(filename, None)
                     library[show_id].pop(show_ep, None)
 
@@ -796,9 +830,12 @@ class Engine:
                     (show_ep_start, show_ep_end) = show_ep
                 else:
                     show_ep_start = show_ep_end = show_ep
-                self.msg.debug(self.name, "File in cache: {}".format(fullpath))
+                self.msg.debug(self.name, _("File already in library: {path}")
+                        .format(path=fullpath))
             else:
-                self.msg.debug(self.name, "File in cache but skipped: {}".format(fullpath))
+                self.msg.debug(self.name,
+                        _("File not in library cache: {path}")
+                        .format(path=fullpath))
                 return library, library_cache
         else:
             # If the filename has not been seen, extract
@@ -811,7 +848,9 @@ class Engine:
             if show_title:
                 show = utils.guess_show(show_title, tracker_list)
                 if show:
-                    self.msg.debug(self.name, "Adding to library: {}".format(fullpath))
+                    self.msg.debug(self.name, 
+                            _("Adding to library: {path}")
+                            .format(path=fullpath))
 
                     show_id = show['id']
                     if show_ep_start == show_ep_end:
@@ -819,10 +858,12 @@ class Engine:
                     else:
                         library_cache[filename] = (show['id'], (show_ep_start, show_ep_end))
                 else:
-                    self.msg.debug(self.name, "Not a show, skipping: {}".format(fullpath))
+                    self.msg.debug(self.name, _("Not a show, skipping: {path}")
+                            .format(path=fullpath))
                     library_cache[filename] = None
             else:
-                self.msg.debug(self.name, "Not recognized, skipping: {}".format(fullpath))
+                self.msg.debug(self.name, _("Not recognized, skipping: {path}")
+                    .format(path=fullpath))
                 library_cache[filename] = None
 
         # After we got our information, add it to our library
@@ -842,9 +883,9 @@ class Engine:
         showid = show['id']
 
         if showid not in library:
-            raise utils.EngineError('Show not in library.')
+            raise utils.EngineError(_("Show not in library."))
         if episode not in library[showid]:
-            raise utils.EngineError('Episode not in library.')
+            raise utils.EngineError(_("Episode not in library."))
 
         return library[showid][episode]
 
@@ -856,7 +897,7 @@ class Engine:
         library = self.library()
         newep = []
 
-        self.msg.info(self.name, 'Looking for random episode.')
+        self.msg.info(self.name, _("Looking for random episode."))
 
         for showid, eps in library.items():
             show = self.get_show_info(showid)
@@ -864,7 +905,7 @@ class Engine:
                 newep.append(show)
 
         if not newep:
-            raise utils.EngineError('No new episodes found to pick from.')
+            raise utils.EngineError(_("No new episodes found to pick from."))
 
         show = random.choice(newep)
         ep = self.play_episode(show)
@@ -879,16 +920,17 @@ class Engine:
         """
         # Check if operation is supported by the API
         if not self.mediainfo.get('can_play'):
-            raise utils.EngineError('Operation not supported by current site or mediatype.')
+            raise utils.EngineError(_("Operation not supported by current "
+                "site or mediatype."))
         if not self.config['searchdir']:
-            raise utils.EngineError('Media directory is not set.')
+            raise utils.EngineError(_("Media directory is not set."))
         if not utils.dir_exists(self.config['searchdir']):
-            raise utils.EngineError('The set media directory doesn\'t exist.')
+            raise utils.EngineError(_("The set media directory doesn't exist."))
 
         try:
             playep = int(playep)
         except ValueError:
-            raise utils.EngineError('Episode must be numeric.')
+            raise utils.EngineError(_( "Episode must be numeric.") )
 
         if show:
             playing_next = False
@@ -897,30 +939,35 @@ class Engine:
                 playing_next = True
 
             if show['total'] and playep > show['total']:
-                raise utils.EngineError('Episode beyond limits.')
+                raise utils.EngineError(_( "Episode beyond limits.") )
 
             if self.config.get('debug_oldsearch'):
                 # Deprecated
-                self.msg.info(self.name, "Searching for %s %s..." % (show['title'], playep))
+                self.msg.info(self.name,
+                        _("Searching for {title} {episodeno}...")
+                        .format(title=show['title'], episodeno=playep))
                 titles = self.data_handler.get_show_titles(show)
                 filename, endep = self._search_video(titles, playep)
             else:
-                self.msg.info(self.name, "Getting %s %s from library..." % (show['title'], playep))
+                self.msg.info(self.name,
+                        _("Getting {title} {episodeno} from library...")
+                            .format(title=show['title'], episodeno=playep))
                 filename = self.get_episode_path(show, playep)
                 endep = playep
 
             if filename:
-                self.msg.info(self.name, 'Found. Starting player...')
+                self.msg.info(self.name, _("Found. Starting player..."))
                 arg_list = shlex.split(self.config['player'])
                 arg_list.append(filename)
                 try:
                     with open(os.devnull, 'wb') as DEVNULL:
                         subprocess.Popen(arg_list, stdout=DEVNULL, stderr=DEVNULL)
                 except OSError:
-                    raise utils.EngineError('Player not found, check your config.json')
+                    raise utils.EngineError(_("Player not found, check your "
+                        "{configfile}").format(configfile='config.json'))
                 return endep
             else:
-                raise utils.EngineError('Episode file not found.')
+                raise utils.EngineError(_("Episode file not found."))
 
     def undoall(self):
         """Clears the data handler queue and discards any unsynced change."""
@@ -934,10 +981,11 @@ class Engine:
         if newname is not None:
             if newname == '':
                 self.data_handler.altname_clear(showid)
-                self.msg.info(self.name, 'Cleared alternate name.')
+                self.msg.info(self.name, _("Cleared alternate name."))
             else:
                 self.data_handler.altname_set(showid, newname)
-                self.msg.info(self.name, 'Changed alternate name to %s.' % newname)
+                self.msg.info(self.name, _("Changed alternate name to "
+                "{newname}.").format(newname=newname))
         else:
             return self.data_handler.altname_get(showid)
 

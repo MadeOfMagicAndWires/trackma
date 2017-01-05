@@ -18,8 +18,11 @@ import threading
 import re
 import time
 import os
-
 import ctypes
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma import messenger
 from trackma import utils
@@ -50,7 +53,7 @@ class TrackerBase(object):
 
     def __init__(self, messenger, tracker_list, process_name, watch_dir, interval, update_wait, update_close, not_found_prompt):
         self.msg = messenger
-        self.msg.info(self.name, 'Initializing...')
+        self.msg.info(self.name, _("Initializing..."))
 
         self.list = tracker_list
         self.process_name = process_name
@@ -61,7 +64,7 @@ class TrackerBase(object):
         self.not_found_prompt = not_found_prompt
         tracker_t = threading.Thread(target=self.observe, args=tracker_args)
         tracker_t.daemon = True
-        self.msg.debug(self.name, 'Enabling tracker...')
+        self.msg.debug(self.name, _("Enabling tracker..."))
         tracker_t.start()
 
     def set_message_handler(self, message_handler):
@@ -81,7 +84,7 @@ class TrackerBase(object):
         try:
             self.signals[signal] = callback
         except KeyError:
-            raise utils.EngineFatal("Invalid signal.")
+            raise utils.EngineFatal(_("Invalid signal."))
 
     def observe(self, watch_dir, interval):
         raise NotImplementedError
@@ -99,7 +102,7 @@ class TrackerBase(object):
             if self.signals[signal]:
                 self.signals[signal](*args)
         except KeyError:
-            raise Exception("Call to undefined signal.")
+            raise Exception(_("Call to undefined signal."))
 
     def _update_show(self, state, show_tuple):
         (show, episode) = show_tuple
@@ -116,7 +119,7 @@ class TrackerBase(object):
                 action = lambda: self._emit_signal('unrecognised', show, episode)
 
             if self.wait_close:
-                self.msg.info(self.name, 'Waiting for the player to close.')
+                self.msg.info(self.name, _("Waiting for the player to close."))
                 self.last_close_queue = action
             elif action:
                 action()
@@ -154,20 +157,30 @@ class TrackerBase(object):
                 self._emit_signal('playing', show['id'], True, episode)
                 # Check if we shouldn't update the show
                 if episode != (show['my_progress'] + 1):
-                    self.msg.warn(self.name, 'Not playing the next episode of %s. Ignoring.' % show['title'])
+                    self.msg.warn(self.name,
+                        _("Not playing the next episode of {title}. "
+                          "Ignoring.")
+                         .format(title=show['title']))
                     self._ignore_current()
                     return
                 if episode < 1 or (show['total'] and episode > show['total']):
-                    self.msg.warn(self.name, 'Playing an invalid episode of %s. Ignoring.' % show['title'])
+                    self.msg.warn(self.name,
+                        _("Playing an invalid episode of {title} "
+                        "Ignoring.")
+                        .format(show['title']))
                     self._ignore_current()
                     return
 
             # Start our countdown
             (show, episode) = show_tuple
             if state == utils.TRACKER_PLAYING:
-                self.msg.info(self.name, 'Will update %s %d in %d seconds' % (show['title'], episode, self.wait_s))
+                self.msg.info(self.name,
+                    _("Will update {title} {episodeno} in {sec} seconds")
+                    .format(title=show['title'], episodeno=episode, sec=self.wait_s))
             elif state == utils.TRACKER_NOT_FOUND:
-                self.msg.info(self.name, 'Will add %s %d in %d seconds' % (show, episode, self.wait_s))
+                self.msg.info(self.name,
+                    _("Will add {title} {episodeno} in {sec} seconds")
+                    .format(title=show, episodeno=episode, sec=self.wait_s))
             self._update_show(state, show_tuple)
 
         elif self.last_state != state:
@@ -177,11 +190,14 @@ class TrackerBase(object):
             if state == utils.TRACKER_NOVIDEO:  # No video is playing
                 # Video didn't get to update phase before it was closed
                 if self.last_state == utils.TRACKER_PLAYING and not self.last_updated:
-                    self.msg.info(self.name, 'Player was closed before update.')
+                    self.msg.info(self.name, _("Player was closed before update."))
             elif state == utils.TRACKER_UNRECOGNIZED:  # There's a new video playing but the regex didn't recognize the format
-                self.msg.warn(self.name, 'Found video but the file name format couldn\'t be recognized.')
+                self.msg.warn(self.name,
+                    _("Found video but the file name format couldn't be "
+                      "recognized."))
             elif state == utils.TRACKER_NOT_FOUND:  # There's a new video playing but an associated show wasn't found
-                self.msg.warn(self.name, 'Found player but show not in list.')
+                self.msg.warn(self.name,
+                   _("Found player but show not in list."))
 
             self.last_show_tuple = None
             self.last_updated = False

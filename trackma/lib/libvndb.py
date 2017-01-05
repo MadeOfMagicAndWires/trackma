@@ -18,6 +18,10 @@ import socket
 import json
 import datetime
 import ssl
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
 
 from trackma.lib.lib import lib
 from trackma import utils
@@ -97,9 +101,9 @@ class libvndb(lib):
             self.s = self.context.wrap_socket(s, server_hostname=self.hostname)
             self.s.connect((self.hostname, self.tls))
         except socket.error:
-            raise utils.APIError("Connection error.")
+            raise utils.APIError(_("Connection error."))
         except ssl.CertificateError:
-            raise utils.APIError("Insecure connection.")
+            raise utils.APIError(_("Insecure connection."))
 
     def _disconnect(self):
         """Shutdown and close the socket"""
@@ -148,10 +152,10 @@ class libvndb(lib):
         if self.logged_in:
             return True
 
-        self.msg.info(self.name, 'Connecting...')
+        self.msg.info(self.name, _("Connecting..."))
         self._connect()
 
-        self.msg.info(self.name, 'Logging in...')
+        self.msg.info(self.name, _("Logging in..."))
         (name, data) = self._sendcmd('login',
             {'protocol': 1,
              'client': 'Trackma',
@@ -176,7 +180,7 @@ class libvndb(lib):
         page = 1
         vns = dict()
         while True:
-            self.msg.info(self.name, 'Downloading list... (%d)' % page)
+            self.msg.info(self.name, _("Downloading list..."))
 
             (name, data) = self._sendcmd('get %s basic (uid = 0)' % self.mediatype,
                 {'page': page,
@@ -185,7 +189,8 @@ class libvndb(lib):
 
             # Something is wrong if we don't get a results response.
             if name != 'results':
-                raise utils.APIFatal("Invalid response (%s)" % name)
+                raise utils.APIFatal(_("Invalid response: {name}")
+                    .format(name=name))
 
             # Process list
             for item in data['items']:
@@ -203,7 +208,7 @@ class libvndb(lib):
         # Retrieve scores per pages
         page = 1
         while True:
-            self.msg.info(self.name, 'Downloading votes... (%d)' % page)
+            self.msg.info(self.name, _("Downloading votes..."))
 
             (name, data) = self._sendcmd('get votelist basic (uid = 0)',
                 {'page': page,
@@ -212,7 +217,8 @@ class libvndb(lib):
 
             # Something is wrong if we don't get a results response.
             if name != 'results':
-                raise utils.APIFatal("Invalid response (%s)" % name)
+                raise utils.APIFatal(_("Invalid response: {name}")
+                    .format(name=name))
 
             for item in data['items']:
                 vnid = item['vn']
@@ -236,7 +242,7 @@ class libvndb(lib):
         infos = list()
         remaining = [ show['id'] for show in itemlist ]
         while True:
-            self.msg.info(self.name, 'Requesting details...(%d)' % start)
+            self.msg.info(self.name, _("Requesting details..."))
             end = start + self.pagesize_details
 
             (name, data) = self._sendcmd('get vn basic,details (id = %s)' % repr(remaining[start:end]),
@@ -246,7 +252,8 @@ class libvndb(lib):
 
             # Something is wrong if we don't get a results response.
             if name != 'results':
-                raise utils.APIFatal("Invalid response (%s)" % name)
+                raise utils.APIError(_("Invalid response: {name}")
+                    .format(name=name))
 
             # Process list
             for item in data['items']:
@@ -271,7 +278,8 @@ class libvndb(lib):
 
         # Update status with set vnlist
         if 'my_status' in item:
-            self.msg.info(self.name, 'Updating VN %s (status)...' % item['title'])
+            self.msg.info(self.name, _("Updating item {title}...")
+                    .format(title=item['title']))
 
             if self.mediatype == 'wishlist':
                 values = {'priority': item['my_status']}
@@ -281,7 +289,8 @@ class libvndb(lib):
             (name, data) = self._sendcmd('set %s %d' % (self.mediatype, item['id']), values)
 
             if name != 'ok':
-                raise utils.APIError("Invalid response (%s)" % name)
+                raise utils.APIError(_("Invalid response: {name}")
+                    .format(name=name))
 
         # Update vote with set votelist
         if 'my_score' in item:
@@ -297,23 +306,27 @@ class libvndb(lib):
             (name, data) = self._sendcmd('set votelist %d' % item['id'], values)
 
             if name != 'ok':
-                raise utils.APIError("Invalid response (%s)" % name)
+                raise utils.APIError(_("Invalid response: {name}")
+                    .format(name=name))
 
     def delete_show(self, item):
         self.check_credentials()
 
-        self.msg.info(self.name, 'Deleting VN %s...' % item['title'])
+        self.msg.info(self.name, _("Deleting item {title}...")
+                .format(title=item['title']))
 
         (name, data) = self._sendcmd('set %s %d' % (self.mediatype, item['id']))
 
         if name != 'ok':
-            raise utils.APIError("Invalid response (%s)" % name)
+            raise utils.APIError(_("Invalid response: {name}")
+                    .format(name=name))
 
     def search(self, criteria):
         self.check_credentials()
 
         results = list()
-        self.msg.info(self.name, 'Searching for %s...' % criteria)
+        self.msg.info(self.name, _("Searching for {query}...")
+                .format(query=criteria))
 
         (name, data) = self._sendcmd('get vn basic,details (search ~ "%s")' % criteria,
             {'page': 1,
@@ -322,7 +335,8 @@ class libvndb(lib):
 
         # Something is wrong if we don't get a results response.
         if name != 'results':
-            raise utils.APIFatal("Invalid response (%s)" % name)
+            raise utils.APIError(_("Invalid response: {name}")
+                    .format(name=name))
 
         # Process list
         for item in data['items']:
@@ -331,12 +345,12 @@ class libvndb(lib):
         self._emit_signal('show_info_changed', results)
 
         if not results:
-            raise utils.APIError('No results.')
+            raise utils.APIError(_("No results."))
 
         return results
 
     def logout(self):
-        self.msg.info(self.name, 'Disconnecting...')
+        self.msg.info(self.name, _("Disconnecting..."))
         self._disconnect()
         self.logged_in = False
 

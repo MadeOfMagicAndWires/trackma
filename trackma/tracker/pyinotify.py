@@ -15,6 +15,12 @@
 #
 
 import pyinotify
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
+from trackma.extras import plex
 
 from trackma.tracker import inotifyBase
 from trackma import utils
@@ -23,7 +29,8 @@ class pyinotifyTracker(inotifyBase.inotifyBase):
     name = 'Tracker (pyinotify)'
 
     def observe(self, watch_dir, interval):
-        self.msg.info(self.name, 'Using pyinotify.')
+        self.msg.info(self.name, _("Using {trackername}")
+                .format(trackername=self.name))
         wm = pyinotify.WatchManager()  # Watch Manager
         mask = (pyinotify.IN_OPEN
                 | pyinotify.IN_CLOSE_NOWRITE
@@ -86,5 +93,5 @@ class pyinotifyTracker(inotifyBase.inotifyBase):
                     self.update_show_if_needed(self.last_state, self.last_show_tuple)
         finally:
             notifier.stop()
-            self.msg.info(self.name, 'Tracker has stopped.')
+            self.msg.info(self.name, _("Tracker has stopped."))
 

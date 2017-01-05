@@ -1,0 +1,261 @@
+# This file is part of Trackma.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-01-05 19:02+0100\n"
+"PO-Revision-Date: 2017-01-05 19:05+0100\n"
+"Last-Translator:  <toost.b@gmail.com>\n"
+"Language-Team: Dutch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: engine.py:96
+msgid "using account {accountname}({apiname})."
+msgstr ""
+
+#: engine.py:100
+msgid "Reading config files..."
+msgstr ""
+
+#: engine.py:104
+msgid "Couldn't open config file."
+msgstr ""
+
+#: engine.py:112
+msgid "Importing user hooks..."
+msgstr ""
+
+#: engine.py:119
+msgid "Importing hook {hookname}..."
+msgstr ""
+
+#: engine.py:126
+msgid "Error importing hook {hookname}."
+msgstr ""
+
+#: engine.py:184
+msgid "Calling hook {hookname}:{signal}..."
+msgstr ""
+
+#: engine.py:190
+msgid "Exception on hook{hookname}:{signal}: {error}"
+msgstr ""
+
+#: engine.py:220
+msgid "Forcing exit..."
+msgstr ""
+
+#: engine.py:228
+msgid "Invalid signal."
+msgstr ""
+
+#: engine.py:242
+msgid "Already loaded."
+msgstr ""
+
+#: engine.py:257
+msgid "Can't auto-scan library: {error}"
+msgstr ""
+
+#: engine.py:310
+msgid "Unloading..."
+msgstr ""
+
+#: engine.py:363 engine.py:371
+msgid "Show not found."
+msgstr ""
+
+#: engine.py:450 engine.py:529 engine.py:551 engine.py:606 engine.py:643
+#: engine.py:666
+msgid "Operation not supported by API."
+msgstr ""
+
+#: engine.py:456 engine.py:910
+msgid "Episode must be numeric."
+msgstr ""
+
+#: engine.py:462
+msgid "Episode out of limits."
+msgstr ""
+
+#: engine.py:464
+msgid "Show already at episode {episodeno}"
+msgstr ""
+
+#: engine.py:468
+msgid "Updating show {name} to episode {ep}..."
+msgstr ""
+
+#: engine.py:488
+msgid "Updated episode but status won't be changed until a score is set."
+msgstr ""
+
+#: engine.py:495
+msgid "Updated episode but status wasn't changed: {error}"
+msgstr ""
+
+#: engine.py:511
+msgid "Updated episode but dates weren't changed: {error}"
+msgstr ""
+
+#: engine.py:536
+msgid "start_date must be a Date object."
+msgstr ""
+
+#: engine.py:541
+msgid "finish_date must be a Date object."
+msgstr ""
+
+#: engine.py:555
+msgid "Invalid score."
+msgstr ""
+
+#: engine.py:569
+msgid "Score already at {score}"
+msgstr ""
+
+#: engine.py:573
+msgid "Updating show {name} to score {score}..."
+msgstr ""
+
+#: engine.py:594
+msgid "Updated episode but status wasn'tchanged: {error}"
+msgstr ""
+
+#: engine.py:616
+msgid "Invalid status."
+msgstr ""
+
+#: engine.py:622
+msgid "Show already in {status}."
+msgstr ""
+
+#: engine.py:627
+msgid "Updating show {name} status to {status}..."
+msgstr ""
+
+#: engine.py:649
+msgid "Tags already {tag}"
+msgstr ""
+
+#: engine.py:652
+msgid "Updating show {name} to tags '{tags}'..."
+msgstr ""
+
+#: engine.py:679
+msgid "DEPRECATED: _search_video"
+msgstr ""
+
+#: engine.py:727
+msgid "Searching {epno}/{total}..."
+msgstr ""
+
+#: engine.py:737 engine.py:770
+msgid "Time: {time}"
+msgstr ""
+
+#: engine.py:747 engine.py:900
+msgid "Operation not supported by current site or mediatype."
+msgstr ""
+
+#: engine.py:750
+msgid "Media directory is not set"
+msgstr ""
+
+#: engine.py:752 engine.py:905
+msgid "The set media directory doesn't exist."
+msgstr ""
+
+#: engine.py:761
+msgid "Scanning local library..."
+msgstr ""
+
+#: engine.py:762
+msgid "Directory: {searchdir}"
+msgstr ""
+
+#: engine.py:787
+msgid "File removed from local library: {path}"
+msgstr ""
+
+#: engine.py:814
+msgid "File already in library: {path}"
+msgstr ""
+
+#: engine.py:818
+msgid "File not in library cache: {path}"
+msgstr ""
+
+#: engine.py:839
+msgid "New file added to local library: {path}"
+msgstr ""
+
+#: engine.py:863
+msgid "Show not in library."
+msgstr ""
+
+#: engine.py:865
+msgid "Episode not in library."
+msgstr ""
+
+#: engine.py:877
+msgid "Looking for random episode."
+msgstr ""
+
+#: engine.py:885
+msgid "No new episodes found to pick from."
+msgstr ""
+
+#: engine.py:903
+msgid "Media directory is not set."
+msgstr ""
+
+#: engine.py:919
+msgid "Episode beyond limits."
+msgstr ""
+
+#: engine.py:924
+msgid "Searching for {show} {episodeno}..."
+msgstr ""
+
+#: engine.py:930
+msgid "Getting {show} {episodeno} from library..."
+msgstr ""
+
+#: engine.py:936
+msgid "Found. Starting player..."
+msgstr ""
+
+#: engine.py:943
+msgid "Player not found, check your {configfile}"
+msgstr ""
+
+#: engine.py:947
+msgid "Episode file not found."
+msgstr ""
+
+#: engine.py:961
+msgid "Cleared alternate name."
+msgstr ""
+
+#: engine.py:964
+msgid "Changed alternate name to {newname}."
+msgstr ""

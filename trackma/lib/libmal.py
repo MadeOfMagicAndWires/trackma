@@ -22,6 +22,12 @@ import datetime
 import base64
 import gzip
 import xml.etree.ElementTree as ET
+import gettext
+t = gettext.translation('trackma',
+        localedir='/home/joost/Programming/git/trackma/trackma/locale/')
+_ = t.gettext
+
+from trackma.lib.lib import lib
 
 from trackma.lib.lib import lib
 from trackma import utils
@@ -115,14 +121,17 @@ class libmal(lib):
         except urllib.request.HTTPError as e:
             if e.code == 401:
                 raise utils.APIError(
-                        "Unauthorized. Please check if your username and password are correct."
-                        "\n\nPlease note that you might also be getting this error if you have "
-                        "non-alphanumeric characters in your password due to an upstream "
-                        "MAL bug (#138).")
+                    _("Unauthorized. Please check if your username and password"
+                      "are correct.") + "\n\n" +
+                    _("Please note that you might also be getting this error"
+                      "if you have non-alphanumeric characters in your password"
+                      "due to an upstream MAL bug (#138)."))
             else:
-                raise utils.APIError("HTTP error %d: %s" % (e.code, e.reason))
+                raise utils.APIError(_("HTTP error {errorno}: {errormsg}")
+                    .format(errorno=e.code, errormsg=e.reason))
         except urllib.request.URLError as e:
-            raise utils.APIError("Connection error: %s" % e)
+            raise utils.APIError(_("Connection error: {error}")
+                .format(error=e))
 
         if response.info().get('content-encoding') == 'gzip':
             ret = gzip.decompress(response.read())
@@ -138,7 +147,7 @@ class libmal(lib):
         if self.logged_in:
             return True     # Already logged in
 
-        self.msg.info(self.name, 'Logging in...')
+        self.msg.info(self.name, _("Logging in..."))
 
         response = self._request(self.url + "account/verify_credentials.xml")
         root = self._parse_xml(response)
@@ -156,7 +165,7 @@ class libmal(lib):
         """Queries the full list from the remote server.
         Returns the list if successful, False otherwise."""
         self.check_credentials()
-        self.msg.info(self.name, 'Downloading list...')
+        self.msg.info(self.name, _("Downloading list..."))
 
         try:
             # Get an XML list from MyAnimeList API
@@ -167,22 +176,27 @@ class libmal(lib):
             root = self._parse_xml(data)
 
             if self.mediatype == 'anime':
-                self.msg.info(self.name, 'Parsing anime list...')
+                self.msg.info(self.name, _("Parsing {mediatype} list...")
+                        .format(mediatype=self.mediatype))
                 return self._parse_anime(root)
             elif self.mediatype == 'manga':
-                self.msg.info(self.name, 'Parsing manga list...')
+                self.msg.info(self.name, _("Parsing {mediatype} list...")
+                        .format(mediatype=self.mediatype))
                 return self._parse_manga(root)
             else:
-                raise utils.APIFatal('Attempted to parse unsupported media type.')
+                raise utils.APIFatal(_("Attempted to parse unsupported media "
+                    "type."))
         except urllib.request.HTTPError as e:
-            raise utils.APIError("Error getting list.")
+            raise utils.APIError(_("Error getting list."))
         except IOError as e:
-            raise utils.APIError("Error reading list: %s" % e)
+            raise utils.APIError(_("Error reading list: {error}")
+                .format(error=e))
 
     def add_show(self, item):
         """Adds a new show in the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Adding show %s..." % item['title'])
+        self.msg.info(self.name, _("Adding item {title}...")
+            .format(title=item['title']))
 
         xml = self._build_xml(item)
 
@@ -192,12 +206,14 @@ class libmal(lib):
         try:
             self.opener.open(self.url + self.mediatype + "list/add/" + str(item['id']) + ".xml", data.encode('utf-8'))
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error adding: ' + str(e.code))
+            raise utils.APIError(_("Error adding {title}: {error}")
+                    .format(title=item['title'], error=str(e.code)))
 
     def update_show(self, item):
         """Sends a show update to the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Updating show %s..." % item['title'])
+        self.msg.info(self.name, _("Updating item {title}...")
+            .format(title=item['title']))
 
         xml = self._build_xml(item)
 
@@ -207,21 +223,24 @@ class libmal(lib):
         try:
             self.opener.open(self.url + self.mediatype + "list/update/" + str(item['id']) + ".xml", data.encode('utf-8'))
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error updating: ' + str(e.code))
+            raise utils.APIError(_("Error updating: {title}")
+                .format(title=item['title'], error=str(e.code)))
 
     def delete_show(self, item):
         """Sends a show delete to the server"""
         self.check_credentials()
-        self.msg.info(self.name, "Deleting show %s..." % item['title'])
+        self.msg.info(self.name, _("Deleting item {title}...")
+            .format(title=item['title']))
 
         try:
             self.opener.open(self.url + self.mediatype + "list/delete/" + str(item['id']) + ".xml")
         except urllib.request.HTTPError as e:
-            raise utils.APIError('Error deleting: ' + str(e.code))
+            raise utils.APIError(_("Error deleting: ") + str(e.code))
 
     def search(self, criteria):
         """Searches MyAnimeList database for the queried show"""
-        self.msg.info(self.name, "Searching for %s..." % criteria)
+        self.msg.info(self.name,
+            _("Searching for {query}...").format(query=criteria))
 
         # Send the urlencoded query to the search API
         query = urllib.parse.urlencode({'q': criteria})
@@ -235,9 +254,9 @@ class libmal(lib):
                 # Empty document; no results
                 return []
             else:
-                raise utils.APIError("Parser error: %r" % e)
+                raise utils.APIError(_("Parser error: {error!r}").format(error=e))
         except IOError:
-            raise utils.APIError("IO error: %r" % e)
+            raise utils.APIError(_("IO error: {error!r}").format(error=e))
 
         # Use the correct tag name for episodes
         if self.mediatype == 'manga':
@@ -307,7 +326,8 @@ class libmal(lib):
         try:
             reslist = [ resultdict[itemid] for itemid in itemids ]
         except KeyError:
-            raise utils.APIError('There was a problem getting the show details.')
+            raise utils.APIError(_("There was a problem getting "
+                "the show details."))
 
         return reslist
 
